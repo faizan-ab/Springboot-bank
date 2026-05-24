@@ -21,9 +21,7 @@ pipeline {
         
         stage('Git: Code Checkout') {
             steps {
-                script{
-                    code_checkout("https://github.com/faizan-ab/Springboot-bank.git","DevOps")
-                }
+                checkout scm
             }
         }
         
