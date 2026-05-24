@@ -38,34 +38,43 @@ pipeline {
             }
         }
         
-        stage("SonarQube: Code Analysis"){
-            steps{
-                script{
-                    sonarqube_analysis("Sonar","bankapp","bankapp")
+        stage("SonarQube: Code Analysis") {
+            steps {
+                withSonarQubeEnv('Sonar') {
+                    sh '''
+                    $SONAR_HOME/bin/sonar-scanner \
+                    -Dsonar.projectName=bankapp \
+                    -Dsonar.projectKey=bankapp
+                    '''
                 }
             }
         }
         
-        stage("SonarQube: Code Quality Gates"){
-            steps{
-                script{
-                    sonarqube_code_quality()
+        stage("SonarQube: Code Quality Gates") {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
 
-        stage("Docker: Build Images"){
-            steps{
-                script{
-                    docker_build("bankapp","${params.DOCKER_TAG}","faizanab")
-                }
+        stage("Docker: Build Images") {
+            steps {
+                sh "docker build -t faizanab/bankapp:${params.DOCKER_TAG} ."
             }
         }
         
-        stage("Docker: Push to DockerHub"){
-            steps{
-                script{
-                    docker_push("bankapp","${params.DOCKER_TAG}","faizanab")
+        stage("Docker: Push to DockerHub") {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+
+                    sh "docker push faizanab/bankapp:${params.DOCKER_TAG}"
                 }
             }
         }
