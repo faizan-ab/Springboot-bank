@@ -22,7 +22,7 @@ pipeline {
         stage('Git: Code Checkout') {
             steps {
                 script{
-                    code_checkout("https://github.com/DevMadhup/Springboot-BankApp.git","DevOps")
+                    code_checkout("https://github.com/faizan-ab/Springboot-bank.git","DevOps")
                 }
             }
         }
@@ -70,7 +70,7 @@ pipeline {
         stage("Docker: Push to DockerHub"){
             steps{
                 script{
-                    docker_push("bankapp","${params.DOCKER_TAG}","madhupdevops")
+                    docker_push("bankapp","${params.DOCKER_TAG}","faizanab")
                 }
             }
         }
