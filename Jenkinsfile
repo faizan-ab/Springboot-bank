@@ -31,11 +31,9 @@ pipeline {
             }
         }
 
-        stage("OWASP: Dependency check"){
-            steps{
-                script{
-                    owasp_dependency()
-                }
+        stage('OWASP: Dependency check') {
+            steps {
+                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'DependencyCheck'
             }
         }
         
